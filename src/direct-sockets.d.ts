@@ -18,7 +18,39 @@ interface SocketOptions {
   sendBufferSize?: number;
   receiveBufferSize? : number;
 }
+ declare enum SocketDnsQueryType {
+  "ipv4",
+  "ipv6"
+}
 
+interface  UDPMessage {
+data:SharedArrayBuffer ;
+ remoteAddress: string;
+   remotePort: number;
+  dnsQueryType: SocketDnsQueryType;
+}
+interface  UDPSocketOptions {
+  remoteAddress?: string;
+  remotePort?: number;
+
+  localAddress?: string;
+  localPort?: number;
+
+sendBufferSize?: number;
+receiveBufferSize?: number;
+
+}
+
+interface UDPSocketOpenInfo {
+  readable: ReadableStream<UDPMessage>;
+  writable: WritableStream<UDPMessage>;
+
+  remoteAddress: string;
+  remotePort: number;
+
+  localAddress: string;
+  localPort: number;
+}
 interface TCPSocketOptions extends SocketOptions {
   localAddress?: string;
   localPort?: number;
@@ -44,7 +76,7 @@ interface SocketOpenInfo {
 }
 
 type TCPSocketOpenInfo = SocketOpenInfo;
-
+type BoundUDPSocketOpenInfo = UDPSocketOpenInfo
 /**
  * TCPSocket interface defined by the Direct Sockets API.
  */
@@ -57,4 +89,13 @@ declare class TCPSocket {
   closed: Promise<void>;
 
   close(options?: SocketCloseOptions): Promise<void>;
+}
+
+declare class UDPSocket {
+  constructor(opts: UDPSocketOptions);
+
+    opened: Promise<BoundUDPSocketOpenInfo>;
+    closed: Promise<void>;
+    close(options?: SocketCloseOptions): Promise<void>;
+
 }

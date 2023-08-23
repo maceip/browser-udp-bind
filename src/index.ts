@@ -22,10 +22,16 @@ import './style.css';
 let hostInput: HTMLInputElement;
 let portInput: HTMLInputElement;
 let connectButton: HTMLButtonElement;
+let bindButton: HTMLButtonElement;
+
 let echoCheckbox: HTMLInputElement;
 let flushOnEnterCheckbox: HTMLInputElement;
 
 let socket: TCPSocket | undefined;
+let udpSocket: UDPSocket | undefined;
+let udpSocketOptions: UDPSocketOptions | undefined;
+let udpConnection: BoundUDPSocketOpenInfo | undefined;
+
 let connection: TCPSocketOpenInfo | undefined;
 let reader: ReadableStreamDefaultReader | undefined;
 
@@ -99,7 +105,41 @@ function markDisconnected(): void {
   connectButton.disabled = false;
   socket = undefined;
 }
+async function udpBind(): Promise<void> {
+  bindButton.textContent = 'Binding...';
+  bindButton.disabled = true;
+  udpSocketOptions = {localAddress: "127.0.0.1", localPort: 4337 }
+  try {
+    udpSocket = new UDPSocket(udpSocketOptions);
+    const { readable, writable, localPort, localAddress } = await udpSocket.opened;
+    term.writeln(`<UDP Socket Opened: ${localAddress} port ${localPort}>`);
 
+    const reader = readable.getReader();
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) {
+        // |reader| has been canceled.
+        break;
+      }
+      // In {{UDPSocket/connected}} {{UDPSocket/mode}}:
+      // In {{UDPSocket/bound}} {{UDPSocket/mode}}:
+      const { data, remoteAddress, remotePort } = value;
+      term.writeln(`<UDP connection from: ${remoteAddress}>, remote port: ${remotePort}, data: ${data}`);    
+
+      // Do something with |data|, |remoteAddress| and |remotePort|...
+    }
+    
+    reader.releaseLock();
+    bindButton.textContent = 'Unbind';
+    bindButton.disabled = false;
+  } catch (e) {
+    console.error(e);
+    term.writeln(`<ERROR: ${e.message}>`);
+    markDisconnected();
+    return;
+  }
+
+}
 /**
  * Initiates a connection to the selected port.
  */
@@ -172,6 +212,15 @@ document.addEventListener('DOMContentLoaded', async () => {
       disconnectFromServer();
     } else {
       connectToServer();
+    }
+  });
+
+  bindButton = document.getElementById('bind') as HTMLButtonElement;
+  bindButton.addEventListener('click', () => {
+    if (udpSocket) {
+      console.log("udp bind still open!");
+    } else {
+      udpBind();
     }
   });
 

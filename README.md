@@ -1,10 +1,10 @@
-# Telnet Demo
+
+# UDP Bind demo (eventually quic+webtransport?)
 
 This repository contains an
 [Isolated Web App](https://github.com/WICG/isolated-web-apps/blob/main/README.md)
-that allows the user to connect to a TCP/IP server through an interactive
-terminal. In other words, a Telnet client. This provides a demonstration of
-the [Direct Sockets API].
+that allows the user to bind to a UDP port on localhost and listen for connections.
+This provides a demonstration ofthe [Direct Sockets API].
 
 ## Privacy
 

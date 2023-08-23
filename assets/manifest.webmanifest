@@ -1,7 +1,7 @@
 {
   "id": "/",
-  "short_name": "Telnet",
-  "name": "Telnet",
+  "short_name": "libp2p-ng",
+  "name": "libp2p-ng",
   "version": "0.1.0",
   "icons": [
     {
